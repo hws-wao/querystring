@@ -1,17 +1,17 @@
 {
-  "name": "querystring",
-  "id": "querystring",
+  "name": "wao-querystring",
+  "id": "wao-querystring",
   "version": "0.2.0",
-  "description": "Node's querystring module for all engines.",
+  "description": "Node's querystring module for wao engines.",
   "keywords": [ "commonjs", "query", "querystring" ],
   "author": "Irakli Gozalishvili <rfobic@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Gozala/querystring.git",
-    "web": "https://github.com/Gozala/querystring"
+    "url": "git://github.com/hws-wao/wao-querystring.git",
+    "web": "https://github.com/hws-wao/wao-querystring"
   },
   "bugs": {
-    "url": "http://github.com/Gozala/querystring/issues/"
+    "url": "http://github.com/hws-wao/wao-querystring/issues/"
   },
   "devDependencies": {
     "test": "~0.x.0",
