@@ -21,17 +21,46 @@
 
 'use strict';
 
-// If obj.hasOwnProperty has been overridden, then calling
-// obj.hasOwnProperty(prop) will break.
-// See: https://github.com/joyent/node/issues/1707
-function hasOwnProperty(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
 module.exports = function(qs, sep, eq, options) {
+  // If obj.hasOwnProperty has been overridden, then calling
+  // obj.hasOwnProperty(prop) will break.
+  // See: https://github.com/joyent/node/issues/1707
+  var hasOwnProperty = function (obj, prop) {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
+  }
+
+  var parseNested = function (k, p, v, obj) {
+    var s = k.split('.');
+    var me = s.shift();
+    var tmp = (hasOwnProperty(obj[p], me)) ? obj[p] : newobj(me, {});
+    if (s.length > 0) {
+      $.extend(obj[p], parseNested(s.join('.'), me, v, tmp));
+    } else {
+       if (Array.isArray(obj[p])) {
+        var len = obj[p].length;
+        if (hasOwnProperty(obj[p][len-1], me)) {
+          obj[p].push(newobj(me, v));
+        } else {
+          obj[p][len-1][me] = v;
+        }
+      } else if (!hasOwnProperty(obj[p], me)) {
+        obj[p][me] = v;
+      } else {
+        obj[p] = [obj[p], newobj(me, v)];
+      }
+    }
+    return obj;
+  }
+
+  var newobj = function (k, v) {
+    var newobj = {};
+    newobj[k] = v;
+    return newobj;
+  }
+
   sep = sep || '&';
   eq = eq || '=';
-  var obj = {};
+  var obj = {"_": {} };
 
   if (typeof qs !== 'string' || qs.length === 0) {
     return obj;
@@ -67,14 +96,8 @@ module.exports = function(qs, sep, eq, options) {
     k = decodeURIComponent(kstr);
     v = decodeURIComponent(vstr);
 
-    if (!hasOwnProperty(obj, k)) {
-      obj[k] = v;
-    } else if (Array.isArray(obj[k])) {
-      obj[k].push(v);
-    } else {
-      obj[k] = [obj[k], v];
-    }
+    obj = parseNested(k, "_", v, obj);
   }
 
-  return obj;
+  return obj["_"];
 };
