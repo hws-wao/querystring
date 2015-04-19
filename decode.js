@@ -27,7 +27,7 @@ module.exports = function(qs, sep, eq, options) {
   // See: https://github.com/joyent/node/issues/1707
   var hasOwnProperty = function (obj, prop) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
-  }
+  };
 
   var parseNested = function (k, p, v, obj) {
     var s = k.split('.');
@@ -50,17 +50,19 @@ module.exports = function(qs, sep, eq, options) {
       }
     }
     return obj;
-  }
+  };
 
   var newobj = function (k, v) {
     var newobj = {};
     newobj[k] = v;
     return newobj;
-  }
+  };
 
   sep = sep || '&';
   eq = eq || '=';
-  var obj = {"_": {} };
+  var ROOT = '_';
+  var obj = {};
+  obj[ROOT] = {};
 
   if (typeof qs !== 'string' || qs.length === 0) {
     return obj;
@@ -72,6 +74,10 @@ module.exports = function(qs, sep, eq, options) {
   var maxKeys = 1000;
   if (options && typeof options.maxKeys === 'number') {
     maxKeys = options.maxKeys;
+  }
+  var defaultPrefix;
+  if (options && typeof options.defaultPrefix === 'string') {
+    defaultPrefix = options.defaultPrefix;
   }
 
   var len = qs.length;
@@ -96,8 +102,13 @@ module.exports = function(qs, sep, eq, options) {
     k = decodeURIComponent(kstr);
     v = decodeURIComponent(vstr);
 
-    obj = parseNested(k, "_", v, obj);
+    if (defaultPrefix && k.substr(0, 1) !== ROOT) {
+      k = defaultPrefix + '.' + k;
+    }
+
+
+    obj = parseNested(k, ROOT, v, obj);
   }
 
-  return obj["_"];
+  return obj[ROOT];
 };
